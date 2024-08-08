@@ -1,11 +1,18 @@
+import javax.imageio.stream.FileImageInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.sql.*;
+import java.util.Scanner;
+
 public class Main {
     public static void main(String[] args) throws ClassNotFoundException{
 
         String url="jdbc:mysql://localhost:3306/mydatabase";
         String username="root";
         String password="root";
-        String query = "INSERT INTO employees(id,name,job_title,salary) VALUES(?,?,?,?)";
+        String image_path="C:\\Users\\merti\\Desktop\\colllege memories\\1000014401.jpg";
+        String query="INSERT INTO image_table(image_data) VALUES(?)";
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
@@ -17,26 +24,29 @@ public class Main {
         try {
             Connection con= DriverManager.getConnection(url,username,password);
             System.out.println("connection is setup");
-            PreparedStatement preparedStatement =con.prepareStatement(query);
-            preparedStatement.setInt(1,3);
-            preparedStatement.setString(2,"Mohit Kumar Singh");
-            preparedStatement.setString(3,"DevOps Engineer");
 
-            preparedStatement.setDouble(4,90000.0);
+            // java me lane k liye bytes me convert krna padega
+            // fileinputStream ---> instance-->image to binary format
+            FileInputStream fileInputStream=new FileInputStream(image_path);
+            // array me store krna hoga --->data type should of byte type
+            byte[] imageData = new byte[fileInputStream.available()];
+            fileInputStream.read(imageData);
+            PreparedStatement preparedStatement= con.prepareStatement(query);
+            preparedStatement.setBytes(1,imageData);
+            int affectedRows= preparedStatement.executeUpdate();
+            if(affectedRows>0){
+                System.out.println("Image Inserted Successful !!");
+            }else {
+                System.out.println("Insertion failed !!!!");
+            }
 
-           int rowsAffected=preparedStatement.executeUpdate();
-
-           if(rowsAffected>0){
-               System.out.println("Data Inserted Successfully!!");
-           }else {
-               System.out.println("Data Insertion Failed");
-           }
-            preparedStatement.close();
-            con.close();
-            System.out.println("conneciton closed successfully");
 
         }catch (SQLException e){
             System.out.println(e.getMessage());
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }
