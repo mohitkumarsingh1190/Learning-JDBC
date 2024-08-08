@@ -5,7 +5,7 @@ public class Main {
         String url="jdbc:mysql://localhost:3306/mydatabase";
         String username="root";
         String password="root";
-        String query = "Select * from employees where name = ?  ;";
+        String query = "INSERT INTO employees(id,name,job_title,salary) VALUES(?,?,?,?)";
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
@@ -18,21 +18,19 @@ public class Main {
             Connection con= DriverManager.getConnection(url,username,password);
             System.out.println("connection is setup");
             PreparedStatement preparedStatement =con.prepareStatement(query);
-            preparedStatement.setString(1,"Hemant");
-//            preparedStatement.setString(2,"Game Developer ");
-            ResultSet resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()){
-                // java local variable = database variable
-                int id = resultSet.getInt("id");
-                String name=resultSet.getString("name");
-                String job_title=resultSet.getString("job_title");
-                double salary = resultSet.getDouble("salary");
-                System.out.println("ID: "+id);
-                System.out.println("NAME: "+name);
-                System.out.println("JOB TITLE: "+job_title);
-                System.out.println("SALARY: "+salary);
-            }
-            resultSet.close();
+            preparedStatement.setInt(1,3);
+            preparedStatement.setString(2,"Mohit Kumar Singh");
+            preparedStatement.setString(3,"DevOps Engineer");
+
+            preparedStatement.setDouble(4,90000.0);
+
+           int rowsAffected=preparedStatement.executeUpdate();
+
+           if(rowsAffected>0){
+               System.out.println("Data Inserted Successfully!!");
+           }else {
+               System.out.println("Data Insertion Failed");
+           }
             preparedStatement.close();
             con.close();
             System.out.println("conneciton closed successfully");
