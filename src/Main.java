@@ -1,7 +1,5 @@
 import javax.imageio.stream.FileImageInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.sql.*;
 import java.util.Scanner;
 
@@ -11,8 +9,9 @@ public class Main {
         String url="jdbc:mysql://localhost:3306/mydatabase";
         String username="root";
         String password="root";
-        String image_path="C:\\Users\\merti\\Desktop\\colllege memories\\1000014401.jpg";
-        String query="INSERT INTO image_table(image_data) VALUES(?)";
+        // ek jyada // lagana hoga
+        String folder_path="C:\\Users\\merti\\Desktop\\colllege memories\\";
+        String query ="SELECT image_data from image_table where image_id=(?)";
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
@@ -25,20 +24,26 @@ public class Main {
             Connection con= DriverManager.getConnection(url,username,password);
             System.out.println("connection is setup");
 
-            // java me lane k liye bytes me convert krna padega
-            // fileinputStream ---> instance-->image to binary format
-            FileInputStream fileInputStream=new FileInputStream(image_path);
-            // array me store krna hoga --->data type should of byte type
-            byte[] imageData = new byte[fileInputStream.available()];
-            fileInputStream.read(imageData);
-            PreparedStatement preparedStatement= con.prepareStatement(query);
-            preparedStatement.setBytes(1,imageData);
-            int affectedRows= preparedStatement.executeUpdate();
-            if(affectedRows>0){
-                System.out.println("Image Inserted Successful !!");
+            //file outstream
+            PreparedStatement preparedStatement = con.prepareStatement(query);
+            preparedStatement.setInt(1,1);
+
+            //data retirving
+            ResultSet resultSet =preparedStatement.executeQuery();
+            if(resultSet.next()){
+                // 1.Retrive --> 2. Java datatypes -->3.--->folder me daal denge
+
+                byte[] image_data=resultSet.getBytes("image_data");
+                // image path banayenge --> folder path se copy kre + image name(very very important)
+                String image_path=folder_path+"extractdImage.jpg";
+                OutputStream outputstream = new FileOutputStream(image_path);
+                // arrays s data ko nikal kr write krega (image_data) --->image_path pr...
+                outputstream.write(image_data);
+                System.out.println("image found successfully at the folder ");
             }else {
-                System.out.println("Insertion failed !!!!");
+                System.out.println("Image not found");
             }
+
 
 
         }catch (SQLException e){
