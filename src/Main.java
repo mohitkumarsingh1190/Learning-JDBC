@@ -1,7 +1,6 @@
-import javax.imageio.stream.FileImageInputStream;
-import java.io.*;
+
 import java.sql.*;
-import java.util.Scanner;
+
 
 public class Main {
     public static void main(String[] args) throws ClassNotFoundException{
@@ -23,25 +22,15 @@ public class Main {
             System.out.println("connection is setup");
             // automatic commits are banned here
             con.setAutoCommit(false);
-           try {
-               // two instances
-               PreparedStatement withdrawStatement = con.prepareStatement(withdrawQuery);
-               PreparedStatement depositStatement=con.prepareStatement(depositQuery);
-               //set values
-               withdrawStatement.setDouble(1,500.00);
-               withdrawStatement.setString(2,"account123");
-               depositStatement.setDouble(1,500.00);
-               depositStatement.setString(2,"account456");
-               withdrawStatement.executeUpdate();
-               depositStatement.executeUpdate();
+            // batchStatement
+            Statement statement = con.createStatement();
+            statement.addBatch("INSERT INTO employees(name,job_title,salary)  VALUES('Vashu','HR Manager',65000)");
+            statement.addBatch("INSERT INTO employees(name,job_title,salary)  VALUES('karan','Cyber Security Analyst',62000)");
+            statement.addBatch("INSERT INTO employees(name,job_title,salary)  VALUES('Vipul','Android Deveoper',675000)");
+            int[] batchResult = statement.executeBatch();
+            con.commit();
+            System.out.println("Batch Executed Successfully !!! ");
 
-               con.commit();
-               System.out.println("Transaction Successfull!!");
-
-           }catch (SQLException e){
-               con.rollback();
-               System.out.println("Transaction failed");
-           }
 
         }catch (SQLException e){
             System.out.println(e.getMessage());
